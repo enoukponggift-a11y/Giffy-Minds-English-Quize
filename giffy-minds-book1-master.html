@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giffy Minds Academy — Primary 1 English Grammar Mastery</title>
+<style>
+  :root {
+    --navy: #1D2A57;
+    --gold: #F5A623;
+    --leaf: #4CAF7D;
+    --coral: #E85D5D;
+    --cream: #FFF8EC;
+    --ink: #26314F;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(160deg, var(--navy) 0%, #2E3E73 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+  .app { width: 100%; max-width: 480px; }
+  .brand { text-align: center; color: var(--cream); margin-bottom: 18px; }
+  .brand .logo { font-size: 26px; font-weight: 800; letter-spacing: 0.3px; }
+  .brand .tagline { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+  .card {
+    background: var(--cream);
+    border-radius: 20px;
+    padding: 24px 22px 26px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  }
+  .book-title { font-size: 13px; color: var(--navy); font-weight: 700; opacity: 0.7; }
+  .topic-title { font-size: 19px; color: var(--navy); font-weight: 800; margin: 2px 0 16px; }
+  .progress-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .progress-track { flex: 1; height: 10px; background: #E6E0D2; border-radius: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--gold); border-radius: 6px; transition: width 0.35s ease; }
+  .progress-label { font-size: 12px; font-weight: 700; color: var(--navy); white-space: nowrap; }
+  .question { font-size: 18px; font-weight: 700; color: var(--ink); line-height: 1.4; margin-bottom: 16px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    text-align: left; padding: 14px 16px; border-radius: 12px;
+    border: 2px solid #DDD6C4; background: #fff; font-size: 16px;
+    color: var(--ink); cursor: pointer; transition: all 0.15s ease;
+  }
+  .option:active { transform: scale(0.98); }
+  .option.correct { border-color: var(--leaf); background: #E9F8EF; color: #1F6B45; font-weight: 700; }
+  .option.wrong { border-color: var(--coral); background: #FDEBEB; color: #B23A3A; font-weight: 700; }
+  .option.disabled { pointer-events: none; opacity: 0.55; }
+  .option.disabled.correct, .option.disabled.wrong { opacity: 1; }
+  .feedback { margin-top: 16px; padding: 14px 16px; border-radius: 12px; font-size: 15px; display: none; animation: pop 0.25s ease; }
+  @keyframes pop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .feedback.show { display: block; }
+  .feedback.right { background: #E9F8EF; border: 2px solid var(--leaf); }
+  .feedback.wrong { background: #FDEBEB; border: 2px solid var(--coral); }
+  .feedback .verdict { font-weight: 800; font-size: 16px; margin-bottom: 4px; }
+  .feedback.right .verdict { color: #1F6B45; }
+  .feedback.wrong .verdict { color: #B23A3A; }
+  .feedback .explain { color: var(--ink); line-height: 1.4; }
+  .next-btn {
+    margin-top: 18px; width: 100%; padding: 14px; border: none; border-radius: 12px;
+    background: var(--navy); color: #fff; font-size: 16px; font-weight: 700;
+    cursor: pointer; display: none;
+  }
+  .next-btn.show { display: block; }
+  .next-btn:active { transform: scale(0.98); }
+  .screen { display: none; text-align: center; }
+  .screen.show { display: block; }
+  .screen .emoji { font-size: 48px; margin-bottom: 8px; }
+  .screen .score { font-size: 32px; font-weight: 800; color: var(--navy); }
+  .screen .msg { font-size: 15px; color: var(--ink); margin: 8px 0 20px; }
+  .action-btn {
+    padding: 14px 20px; border: none; border-radius: 12px;
+    background: var(--gold); color: var(--navy); font-weight: 800;
+    font-size: 15px; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="brand">
+    <div class="logo">GIFFY MINDS ACADEMY</div>
+    <div class="tagline">Raising Global Leaders</div>
+  </div>
+
+  <div class="card">
+    <div id="quizView">
+      <div class="book-title">Primary 1 English Grammar Mastery — Book 1</div>
+      <div class="topic-title" id="topicTitle"></div>
+
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="progress-label" id="progressLabel"></div>
+      </div>
+
+      <div class="question" id="questionText"></div>
+      <div class="options" id="optionsList"></div>
+
+      <div class="feedback" id="feedback">
+        <div class="verdict" id="verdict"></div>
+        <div class="explain" id="explain"></div>
+      </div>
+
+      <button class="next-btn" id="nextBtn">Next Question</button>
+    </div>
+
+    <div class="screen" id="topicCompleteView">
+      <div class="emoji">🎉</div>
+      <div class="score" id="topicScore">0 / 20</div>
+      <div class="msg" id="topicMsg">Topic complete!</div>
+      <button class="action-btn" id="continueBtn">Continue to Next Topic</button>
+    </div>
+
+    <div class="screen" id="finalView">
+      <div class="emoji">🏆</div>
+      <div class="score" id="finalScore">0 / 40</div>
+      <div class="msg">Book 1 complete! Great work.</div>
+      <button class="action-btn" id="restartBtn">Start Over</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- DATA ----
+  // Each topic is its own object with a title and its own questions array.
+  // To add a new topic (Adjectives, Pronouns, Singular & Plural), copy one
+  // of these blocks, rename the title, and drop in its 20 questions.
+  const topics = [
+    {
+      title: "Topic 1: Nouns — Naming Words",
+      questions: [
+        { text: "Which word is a noun?", options: ["run", "boy", "happy", "quickly"], correctIndex: 1, explain: "Boy is a noun because it names a person." },
+        { text: "Which word names a place?", options: ["school", "jump", "beautiful", "sing"], correctIndex: 0, explain: "School is a noun because it names a place." },
+        { text: "Which word names an animal?", options: ["green", "run", "dog", "quickly"], correctIndex: 2, explain: "Dog is a noun because it names an animal." },
+        { text: "Which word names a thing?", options: ["pencil", "dance", "small", "happy"], correctIndex: 0, explain: "Pencil is a noun because it names a thing." },
+        { text: "Which word is a noun?", options: ["teacher", "write", "tall", "slowly"], correctIndex: 0, explain: "Teacher is a noun because it names a person." },
+        { text: "Which word names a person?", options: ["school", "mother", "book", "jump"], correctIndex: 1, explain: "Mother is a noun because it names a person." },
+        { text: "Which word names a place?", options: ["market", "sing", "blue", "happy"], correctIndex: 0, explain: "Market is a noun because it names a place." },
+        { text: "Which word names an animal?", options: ["cat", "run", "beautiful", "quickly"], correctIndex: 0, explain: "Cat is a noun because it names an animal." },
+        { text: "Which word names a thing?", options: ["book", "dance", "kind", "run"], correctIndex: 0, explain: "Book is a noun because it names a thing." },
+        { text: "Which word is a noun?", options: ["girl", "jump", "happy", "slowly"], correctIndex: 0, explain: "Girl is a noun because it names a person." },
+        { text: "Which word is a noun in this sentence: The dog runs.", options: ["The", "dog", "runs", "is"], correctIndex: 1, explain: "Dog is the noun because it names an animal." },
+        { text: "Which word is a noun in this sentence: Ada has a bag.", options: ["has", "a", "Ada", "happy"], correctIndex: 2, explain: "Ada is a noun because it names a person." },
+        { text: "Which word is a noun in this sentence: The boy reads a book.", options: ["reads", "boy", "the", "quickly"], correctIndex: 1, explain: "Boy is a noun because it names a person." },
+        { text: "Which word is a noun in this sentence: We went to school.", options: ["went", "school", "to", "quickly"], correctIndex: 1, explain: "School is a noun because it names a place." },
+        { text: "Which pair contains two nouns?", options: ["boy, girl", "run, jump", "big, small", "sing, dance"], correctIndex: 0, explain: "Boy and girl are both nouns because they name people." },
+        { text: "Which group contains only nouns?", options: ["book, pen, bag", "run, jump, sing", "big, small, tall", "happy, kind, nice"], correctIndex: 0, explain: "Book, pen, and bag are all nouns because they name things." },
+        { text: "Which sentence has a noun?", options: ["The boy runs.", "Run quickly.", "Very happy.", "Jump high."], correctIndex: 0, explain: "Boy is a noun because it names a person." },
+        { text: "Which sentence has TWO nouns?", options: ["The boy has a ball.", "The boy runs.", "She is happy.", "Run quickly."], correctIndex: 0, explain: "Boy and ball are both nouns in the sentence." },
+        { text: "Which word does NOT name a person, place, animal, or thing?", options: ["teacher", "school", "cat", "run"], correctIndex: 3, explain: "Run is a verb because it shows an action, not a person, place, animal, or thing." },
+        { text: "Which sentence contains a person and a thing?", options: ["The teacher has a book.", "The dog runs.", "The girl is happy.", "Run to school."], correctIndex: 0, explain: "Teacher names a person and book names a thing." }
+      ]
+    },
+    {
+      title: "Topic 2: Verbs — Action Words",
+      questions: [
+        { text: "Which word is a verb?", options: ["boy", "run", "happy", "quickly"], correctIndex: 1, explain: "Run is a verb because it shows an action." },
+        { text: "Which word shows an action?", options: ["school", "jump", "beautiful", "book"], correctIndex: 1, explain: "Jump is a verb because it shows an action." },
+        { text: "Which word is a verb?", options: ["dog", "green", "sing", "small"], correctIndex: 2, explain: "Sing is a verb because it shows an action." },
+        { text: "Which word is a verb?", options: ["pencil", "dance", "small", "happy"], correctIndex: 1, explain: "Dance is a verb because it shows an action." },
+        { text: "Which word is a verb?", options: ["teacher", "write", "tall", "slowly"], correctIndex: 1, explain: "Write is a verb because it shows an action." },
+        { text: "Which word is a verb in this sentence: The boy runs fast.", options: ["boy", "runs", "fast", "the"], correctIndex: 1, explain: "Runs is a verb because it shows what the boy is doing." },
+        { text: "Which word is a verb in this sentence: Ada eats rice.", options: ["Ada", "eats", "rice", "happy"], correctIndex: 1, explain: "Eats is a verb because it shows an action." },
+        { text: "Which word is a verb in this sentence: The girl sings a song.", options: ["girl", "sings", "song", "the"], correctIndex: 1, explain: "Sings is a verb because it shows an action." },
+        { text: "Which word is a verb in this sentence: We walk to school.", options: ["we", "walk", "school", "to"], correctIndex: 1, explain: "Walk is a verb because it shows an action." },
+        { text: "Which word is a verb in this sentence: The cat sleeps all day.", options: ["cat", "sleeps", "day", "all"], correctIndex: 1, explain: "Sleeps is a verb because it shows what the cat is doing." },
+        { text: "Which word shows what a bird does?", options: ["fly", "nest", "feather", "wing"], correctIndex: 0, explain: "Fly is a verb because it shows an action a bird does." },
+        { text: "Which word shows what a fish does?", options: ["scale", "swim", "water", "tail"], correctIndex: 1, explain: "Swim is a verb because it shows an action a fish does." },
+        { text: "Which pair contains two verbs?", options: ["run, jump", "boy, girl", "big, small", "book, pen"], correctIndex: 0, explain: "Run and jump are both verbs because they show actions." },
+        { text: "Which group contains only verbs?", options: ["run, jump, sing", "book, pen, bag", "big, small, tall", "happy, kind, nice"], correctIndex: 0, explain: "Run, jump, and sing are all verbs because they show actions." },
+        { text: "Which sentence has a verb?", options: ["The boy runs.", "Very happy.", "A red ball.", "The big dog."], correctIndex: 0, explain: "Runs is the verb because it shows an action." },
+        { text: "Which sentence has TWO verbs?", options: ["She sings and dances.", "The boy is tall.", "A big red car.", "The happy girl."], correctIndex: 0, explain: "Sings and dances are both verbs showing actions the girl does." },
+        { text: "Which word does NOT show an action?", options: ["run", "jump", "book", "sing"], correctIndex: 2, explain: "Book is a noun, not a verb — it does not show an action." },
+        { text: "Which word is a verb: The children play outside?", options: ["children", "play", "outside", "the"], correctIndex: 1, explain: "Play is a verb because it shows what the children are doing." },
+        { text: "Which word is a verb: Father drives a car?", options: ["father", "drives", "car", "a"], correctIndex: 1, explain: "Drives is a verb because it shows an action." },
+        { text: "Which sentence shows a person doing an action?", options: ["The teacher writes.", "The tall teacher.", "A happy boy.", "The red book."], correctIndex: 0, explain: "Writes is a verb showing the teacher's action." }
+      ]
+    },
+    {
+      title: "Topic 3: Adjectives — Describing Words",
+      questions: [
+        { text: "Which word describes the ball?", options: ["run", "red", "jump", "sing"], correctIndex: 1, explain: "Red is an adjective because it describes what the ball looks like." },
+        { text: "Which word describes the dog?", options: ["big", "run", "school", "eat"], correctIndex: 0, explain: "Big is an adjective because it describes the size of the dog." },
+        { text: "Which word describes the girl?", options: ["jump", "happy", "book", "sing"], correctIndex: 1, explain: "Happy is an adjective because it describes how the girl feels." },
+        { text: "Which word describes the cake?", options: ["sweet", "run", "dance", "school"], correctIndex: 0, explain: "Sweet is an adjective because it describes the taste of the cake." },
+        { text: "Which word is an adjective?", options: ["tall", "run", "book", "jump"], correctIndex: 0, explain: "Tall is an adjective because it describes size or height." },
+        { text: "Which word describes the sky?", options: ["blue", "fly", "cloud", "run"], correctIndex: 0, explain: "Blue is an adjective because it describes the color of the sky." },
+        { text: "Which word describes the boy in this sentence: The tall boy runs.", options: ["tall", "boy", "runs", "the"], correctIndex: 0, explain: "Tall is an adjective because it describes the boy." },
+        { text: "Which word describes the flower in this sentence: The pretty flower grows.", options: ["grows", "flower", "pretty", "the"], correctIndex: 2, explain: "Pretty is an adjective because it describes the flower." },
+        { text: "Which word describes the house in this sentence: We live in a small house.", options: ["live", "small", "house", "in"], correctIndex: 1, explain: "Small is an adjective because it describes the size of the house." },
+        { text: "Which word describes the water in this sentence: The cold water is nice.", options: ["cold", "water", "is", "nice"], correctIndex: 0, explain: "Cold is an adjective because it describes the water's temperature." },
+        { text: "Which word tells us how many?", options: ["three", "run", "happy", "jump"], correctIndex: 0, explain: "Three is an adjective because it tells us the number of something." },
+        { text: "Which word describes how the soup tastes?", options: ["hot", "cook", "eat", "pot"], correctIndex: 0, explain: "Hot is an adjective because it describes the soup." },
+        { text: "Which pair contains two adjectives?", options: ["big, small", "run, jump", "boy, girl", "book, pen"], correctIndex: 0, explain: "Big and small are both adjectives because they describe size." },
+        { text: "Which group contains only adjectives?", options: ["tall, short, fat", "run, jump, sing", "boy, girl, dog", "book, pen, bag"], correctIndex: 0, explain: "Tall, short, and fat all describe how something looks." },
+        { text: "Which sentence has an adjective?", options: ["The big dog barks.", "The dog barks.", "He runs fast.", "She sings loud."], correctIndex: 0, explain: "Big is an adjective describing the dog." },
+        { text: "Which sentence has TWO adjectives?", options: ["The big, red ball rolled.", "The ball rolled.", "He kicked the ball.", "She threw it."], correctIndex: 0, explain: "Big and red both describe the ball." },
+        { text: "Which word does NOT describe anything?", options: ["tall", "happy", "run", "sweet"], correctIndex: 2, explain: "Run is a verb, not an adjective — it does not describe a person or thing." },
+        { text: "Which word describes the weather: It is a sunny day?", options: ["it", "is", "sunny", "day"], correctIndex: 2, explain: "Sunny is an adjective because it describes the day." },
+        { text: "Which word describes the shoes: Mary has new shoes?", options: ["Mary", "has", "new", "shoes"], correctIndex: 2, explain: "New is an adjective because it describes the shoes." },
+        { text: "Which sentence shows a describing word for a person?", options: ["The kind teacher helps.", "The teacher walks.", "She writes fast.", "He is a teacher."], correctIndex: 0, explain: "Kind is an adjective describing the teacher." }
+      ]
+    },
+    {
+      title: "Topic 4: Pronouns — Replacing Words",
+      questions: [
+        { text: "Which word replaces the name 'Ada' in this sentence: Ada is happy. She is smiling.", options: ["She", "He", "It", "They"], correctIndex: 0, explain: "She is a pronoun that replaces the girl's name, Ada." },
+        { text: "Which word replaces the name 'John' in this sentence: John runs fast. He wins the race.", options: ["It", "She", "He", "They"], correctIndex: 2, explain: "He is a pronoun that replaces the boy's name, John." },
+        { text: "Which word replaces 'the dog' in this sentence: The dog barks. It is loud.", options: ["He", "She", "It", "They"], correctIndex: 2, explain: "It is a pronoun used for animals and things." },
+        { text: "Which word replaces 'the boys' in this sentence: The boys play. They are happy.", options: ["He", "She", "It", "They"], correctIndex: 3, explain: "They is a pronoun used for more than one person or thing." },
+        { text: "Which word is a pronoun?", options: ["book", "she", "school", "run"], correctIndex: 1, explain: "She is a pronoun because it can replace a girl's name." },
+        { text: "Which pronoun would you use for yourself?", options: ["you", "I", "he", "they"], correctIndex: 1, explain: "I is the pronoun a person uses to talk about themselves." },
+        { text: "Which pronoun would you use when talking TO someone?", options: ["you", "I", "she", "it"], correctIndex: 0, explain: "You is the pronoun used to speak directly to another person." },
+        { text: "Which word replaces 'Mary and I' in this sentence: Mary and I are friends. We play together.", options: ["We", "They", "You", "It"], correctIndex: 0, explain: "We is a pronoun used for yourself and at least one other person." },
+        { text: "Which pronoun fits: ___ is my sister.", options: ["She", "It", "They", "You"], correctIndex: 0, explain: "She is used for a girl or woman." },
+        { text: "Which pronoun fits: ___ is a ball.", options: ["He", "She", "It", "They"], correctIndex: 2, explain: "It is used for a thing, like a ball." },
+        { text: "Which sentence correctly uses a pronoun?", options: ["He is my brother.", "Boy is my brother.", "Him is my brother.", "His is my brother."], correctIndex: 0, explain: "He correctly replaces a boy's or man's name as the subject of the sentence." },
+        { text: "Which sentence correctly uses a pronoun for a group of children?", options: ["He are playing.", "It are playing.", "They are playing.", "She are playing."], correctIndex: 2, explain: "They is the correct pronoun for more than one person." },
+        { text: "Which pronoun replaces 'the cat and the dog'?", options: ["He", "She", "It", "They"], correctIndex: 3, explain: "They is used to replace more than one animal or thing." },
+        { text: "Which word in this sentence is a pronoun: She likes ice cream.", options: ["She", "likes", "ice", "cream"], correctIndex: 0, explain: "She is the pronoun, replacing a girl's or woman's name." },
+        { text: "Which word in this sentence is a pronoun: We are going to the market.", options: ["We", "are", "going", "market"], correctIndex: 0, explain: "We is the pronoun, referring to the speaker and others." },
+        { text: "Which pair contains two pronouns?", options: ["he, she", "run, jump", "boy, girl", "big, small"], correctIndex: 0, explain: "He and she are both pronouns because they replace names of people." },
+        { text: "Which group contains only pronouns?", options: ["I, you, he, she", "run, jump, sing", "boy, girl, dog", "big, small, tall"], correctIndex: 0, explain: "I, you, he, and she are all pronouns." },
+        { text: "Which word does NOT replace a noun?", options: ["he", "she", "run", "it"], correctIndex: 2, explain: "Run is a verb, not a pronoun — it does not replace a noun." },
+        { text: "Which pronoun fits: Peter has a car. ___ drives it every day.", options: ["He", "She", "It", "They"], correctIndex: 0, explain: "He replaces Peter, a boy's or man's name." },
+        { text: "Which sentence uses a pronoun correctly?", options: ["They is my friends.", "They are my friends.", "Them are my friends.", "Their are my friends."], correctIndex: 1, explain: "They are is correct — they is the pronoun and are matches it." }
+      ]
+    },
+    {
+      title: "Topic 5: Singular & Plural — One or Many",
+      questions: [
+        { text: "Which word is singular (means ONE)?", options: ["cats", "cat", "boys", "books"], correctIndex: 1, explain: "Cat means one animal, so it is singular." },
+        { text: "Which word is plural (means MORE THAN ONE)?", options: ["dog", "book", "cats", "girl"], correctIndex: 2, explain: "Cats means more than one, so it is plural." },
+        { text: "What is the plural of 'book'?", options: ["books", "bookes", "bookies", "bookss"], correctIndex: 0, explain: "We add -s to most words to make them plural: book becomes books." },
+        { text: "What is the plural of 'girl'?", options: ["girles", "girls", "girlies", "girlss"], correctIndex: 1, explain: "We add -s to make girl plural: girls." },
+        { text: "What is the plural of 'box'?", options: ["boxs", "boxes", "boxies", "box"], correctIndex: 1, explain: "Words ending in -x usually add -es to become plural: box becomes boxes." },
+        { text: "What is the plural of 'bus'?", options: ["buss", "buses", "buss", "bus"], correctIndex: 1, explain: "Words ending in -s usually add -es to become plural: bus becomes buses." },
+        { text: "What is the plural of 'dish'?", options: ["dishs", "dishes", "dish", "dishies"], correctIndex: 1, explain: "Words ending in -sh usually add -es to become plural: dish becomes dishes." },
+        { text: "What is the plural of 'baby'?", options: ["babys", "babies", "baby", "babyes"], correctIndex: 1, explain: "Words ending in a consonant + y change the y to i and add -es: baby becomes babies." },
+        { text: "What is the plural of 'toy'?", options: ["toies", "toys", "toyes", "toy"], correctIndex: 1, explain: "Words ending in a vowel + y just add -s: toy becomes toys." },
+        { text: "What is the plural of 'child'?", options: ["childs", "childes", "children", "child"], correctIndex: 2, explain: "Child is a special word that does not follow the usual rule — its plural is children." },
+        { text: "What is the plural of 'man'?", options: ["mans", "men", "manes", "man"], correctIndex: 1, explain: "Man is a special word — its plural is men, not mans." },
+        { text: "What is the plural of 'woman'?", options: ["womans", "women", "womanes", "woman"], correctIndex: 1, explain: "Woman is a special word — its plural is women." },
+        { text: "What is the plural of 'foot'?", options: ["foots", "feet", "footes", "foot"], correctIndex: 1, explain: "Foot is a special word — its plural is feet." },
+        { text: "What is the plural of 'tooth'?", options: ["tooths", "teeth", "toothes", "tooth"], correctIndex: 1, explain: "Tooth is a special word — its plural is teeth." },
+        { text: "Which sentence correctly uses a plural?", options: ["I have two dog.", "I have two dogs.", "I have two doges.", "I have two dogges."], correctIndex: 1, explain: "Dogs is the correct plural — we add -s to dog." },
+        { text: "Which sentence correctly uses a singular?", options: ["She has one book.", "She has one books.", "She has one bookes.", "She has one bookies."], correctIndex: 0, explain: "Book is correct here because it means only one." },
+        { text: "Which word means more than one 'sheep'?", options: ["sheeps", "sheepes", "sheep", "sheepies"], correctIndex: 2, explain: "Sheep is a special word — it stays the same whether it means one or many." },
+        { text: "Which word means more than one 'fish'?", options: ["fishs", "fishes", "fish", "fishies"], correctIndex: 2, explain: "Fish usually stays the same in the plural, though 'fishes' is sometimes used for different kinds of fish." },
+        { text: "Which sentence has a singular noun?", options: ["The cats are playing.", "The cat is playing.", "The boys are running.", "The books are here."], correctIndex: 1, explain: "Cat is singular because it means only one, matched with 'is'." },
+        { text: "Which sentence has a plural noun?", options: ["The girl sings.", "The boy reads.", "The children play.", "The cat sleeps."], correctIndex: 2, explain: "Children is plural — it means more than one child." }
+      ]
+    }
+    // Book 1 complete: all 5 topics, 100 questions.
+  ];
+
+  // ---- STATE ----
+  let topicIndex = 0;
+  let current = 0;
+  let topicScore = 0;
+  let totalScore = 0;
+  let answered = false;
+
+  // ---- ELEMENTS ----
+  const topicTitle = document.getElementById('topicTitle');
+  const questionText = document.getElementById('questionText');
+  const optionsList = document.getElementById('optionsList');
+  const feedback = document.getElementById('feedback');
+  const verdict = document.getElementById('verdict');
+  const explain = document.getElementById('explain');
+  const nextBtn = document.getElementById('nextBtn');
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+  const quizView = document.getElementById('quizView');
+  const topicCompleteView = document.getElementById('topicCompleteView');
+  const finalView = document.getElementById('finalView');
+  const topicScoreEl = document.getElementById('topicScore');
+  const topicMsg = document.getElementById('topicMsg');
+  const finalScoreEl = document.getElementById('finalScore');
+
+  function loadQuestion() {
+    answered = false;
+    feedback.classList.remove('show', 'right', 'wrong');
+    nextBtn.classList.remove('show');
+
+    const topic = topics[topicIndex];
+    const q = topic.questions[current];
+    topicTitle.textContent = topic.title;
+    questionText.textContent = q.text;
+    progressLabel.textContent = `Q${current + 1} of ${topic.questions.length}`;
+    progressFill.style.width = `${(current / topic.questions.length) * 100}%`;
+
+    optionsList.innerHTML = '';
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => selectAnswer(i, btn));
+      optionsList.appendChild(btn);
+    });
+  }
+
+  function selectAnswer(index, btn) {
+    if (answered) return;
+    answered = true;
+
+    const q = topics[topicIndex].questions[current];
+    const allBtns = optionsList.querySelectorAll('.option');
+    allBtns.forEach(b => b.classList.add('disabled'));
+
+    if (index === q.correctIndex) {
+      btn.classList.add('correct');
+      verdict.textContent = "Correct! ✅";
+      feedback.classList.add('show', 'right');
+      topicScore++;
+      totalScore++;
+    } else {
+      btn.classList.add('wrong');
+      allBtns[q.correctIndex].classList.add('correct');
+      verdict.textContent = "Try again! ❌";
+      feedback.classList.add('show', 'wrong');
+    }
+
+    explain.textContent = q.explain;
+    nextBtn.classList.add('show');
+  }
+
+  nextBtn.addEventListener('click', () => {
+    current++;
+    const topic = topics[topicIndex];
+    if (current < topic.questions.length) {
+      loadQuestion();
+    } else if (topicIndex < topics.length - 1) {
+      showTopicComplete();
+    } else {
+      showFinal();
+    }
+  });
+
+  function showTopicComplete() {
+    quizView.style.display = 'none';
+    topicCompleteView.classList.add('show');
+    topicScoreEl.textContent = `${topicScore} / ${topics[topicIndex].questions.length}`;
+    topicMsg.textContent = `You finished "${topics[topicIndex].title}"!`;
+  }
+
+  document.getElementById('continueBtn').addEventListener('click', () => {
+    topicIndex++;
+    current = 0;
+    topicScore = 0;
+    topicCompleteView.classList.remove('show');
+    quizView.style.display = 'block';
+    loadQuestion();
+  });
+
+  function showFinal() {
+    quizView.style.display = 'none';
+    topicCompleteView.classList.remove('show');
+    finalView.classList.add('show');
+    const totalQuestions = topics.reduce((sum, t) => sum + t.questions.length, 0);
+    finalScoreEl.textContent = `${totalScore} / ${totalQuestions}`;
+  }
+
+  document.getElementById('restartBtn').addEventListener('click', () => {
+    topicIndex = 0;
+    current = 0;
+    topicScore = 0;
+    totalScore = 0;
+    finalView.classList.remove('show');
+    quizView.style.display = 'block';
+    loadQuestion();
+  });
+
+  // start
+  loadQuestion();
+</script>
+
+</body>
+</html>
